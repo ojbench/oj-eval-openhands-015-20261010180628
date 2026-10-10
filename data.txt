@@ -3,3 +3,15 @@ I CppPrimer 2012
 I Dune 2021
 I CppPrimer 2001
 D Dune 2021
+I a 1
+I a 1
+D a 1
+I a 1
+I a 2
+D a 1
+I a 1
+D a 2
+I a 5
+I a 3
+D a 5
+D a 3

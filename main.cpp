@@ -11,51 +11,58 @@ int main() {
     {
         ofstream ofs(data_file, ios::app);
     }
+
+    // Load existing data into memory
+    unordered_map<string, set<int>> db;
+    {
+        ifstream ifs(data_file);
+        string op, idx;
+        int val;
+        while(ifs >> op >> idx >> val) {
+            if(op == "I") {
+                db[idx].insert(val);
+            } else if(op == "D") {
+                auto it = db.find(idx);
+                if(it != db.end()) {
+                    it->second.erase(val);
+                    if(it->second.empty()) db.erase(it);
+                }
+            }
+        }
+    }
+
+
+    
+
+
+    
     string cmd, idx;
     int val;
     for(int i=0;i<n;++i){
         cin>>cmd>>idx;
         if(cmd=="insert"){
             cin>>val;
-            // Scan file to see if value already exists for this index
-            bool exists = false;
-            {
-                ifstream ifs(data_file);
-                string op, cur_idx;
-                int cur_val;
-                while(ifs >> op >> cur_idx >> cur_val){
-                    if(cur_idx==idx && op=="I" && cur_val==val){
-                        exists = true;
-                    }
-                    if(cur_idx==idx && op=="D" && cur_val==val){
-                        exists = false; // deleted later
-                    }
-                }
-            }
-            if(!exists){
+            if(db[idx].find(val)==db[idx].end()){
+                db[idx].insert(val);
                 ofstream ofs(data_file, ios::app);
                 ofs << "I " << idx << ' ' << val << '\n';
             }
         } else if(cmd=="delete"){
             cin>>val;
-            // Append delete operation (even if not present)
+            auto it = db.find(idx);
+            if(it!=db.end()){
+                it->second.erase(val);
+                if(it->second.empty()) db.erase(it);
+            }
             ofstream ofs(data_file, ios::app);
             ofs << "D " << idx << ' ' << val << '\n';
         } else if(cmd=="find"){
-            // Compute current values for idx by scanning file
-            ifstream ifs(data_file);
-            set<int> values;
-            string op, cur_idx;
-            int cur_val;
-            while(ifs >> op >> cur_idx >> cur_val){
-                if(cur_idx!=idx) continue;
-                if(op=="I") values.insert(cur_val);
-                else if(op=="D") values.erase(cur_val);
-            }
-            if(values.empty()) cout << "null\n";
-            else {
+            auto it = db.find(idx);
+            if(it==db.end()||it->second.empty()){
+                cout << "null\n";
+            } else {
                 bool first=true;
-                for(int v: values){
+                for(int v: it->second){
                     if(!first) cout << ' ';
                     first=false;
                     cout << v;
